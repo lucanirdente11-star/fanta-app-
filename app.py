@@ -1,7 +1,6 @@
 
 import pandas as pd
 
-st.set_page_config(page_title="FantaHub Pro - Database Serie A", page_icon="⚽", layout="wide")
 st.title("⚽ FantaHub Pro - Guida Asta Serie A (1500 Crediti)")
 st.caption("Database completo di tutte le squadre e giocatori con valutazioni, titolarità e spesa consigliata.")
 
