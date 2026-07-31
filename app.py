@@ -1,5 +1,7 @@
 
 import pandas as pd
+
+st.set_page_config(page_title="FantaHub Pro - Database Serie A", page_icon="⚽", layout="wide")
 st.title("⚽ FantaHub Pro - Guida Asta Serie A (1500 Crediti)")
 st.caption("Database completo di tutte le squadre e giocatori con valutazioni, titolarità e spesa consigliata.")
 
@@ -704,6 +706,7 @@ perc_p = st.sidebar.slider("Porta (%)", 1, 10, 4)
 perc_d = st.sidebar.slider("Difesa (%)", 5, 20, 10)
 perc_c = st.sidebar.slider("Centrocampo (%)", 10, 40, 26)
 perc_a = st.sidebar.slider("Attacco (%)", 30, 80, 60)
+
 b_p = (budget_totale * perc_p) / 100
 b_d = (budget_totale * perc_d) / 100
 b_c = (budget_totale * perc_c) / 100
@@ -729,7 +732,7 @@ tab1, tab2 = st.tabs(["🔍 Cerca Giocatore & Scheda Asta", "📋 Listone Comple
 
 with tab1:
     st.subheader("🔎 Cerca un Giocatore nel Database")
-    search_input = st.text_input("Scrivi il nome del giocatore (es. Lautaro, De Bruyne, Berardi):", "")
+    search_input = st.text_input("✍ Scrivi il nome del giocatore (es. Lautaro, De Bruyne, Berardi):", "")
     if search_input:
         filtered_names = df[df["Nome"].str.contains(search_input, case=False, na=False)]["Nome"].tolist()
     else:
@@ -737,33 +740,38 @@ with tab1:
     if filtered_names:
         selected_player = st.selectbox("Seleziona il calciatore trovato:", filtered_names)
         player = df[df["Nome"] == selected_player].iloc[0]
-        st.markdown(f"## {player['Nome']} ({player['Squadra']})")
+        st.markdown(f"## 👤 {player['Nome']} ({player['Squadra']})")
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Ruolo", player["Ruolo"])
-        col2.metric("Titolarità", f"{player['Titolarita_%']}%")
-        col3.metric("SPESA MAX", f"{player['Spesa_Max_Consigliata_(cr)']} cr")
-        col4.metric("Convenienza", player["Convenienza"])
+        col2.metric("Titolarità Esperta", f"{player['Titolarita_%']}%")
+        col3.metric("SPESA MAX CONSIGLIATA", f"{player['Spesa_Max_Consigliata_(cr)']} cr")
+        col4.metric("Convenienza Asta", player["Convenienza"])
         st.divider()
+        st.subheader("📊 Statistiche 25/26")
         c1,c2,c3,c4,c5,c6,c7 = st.columns(7)
-        c1.metric("Pres 25/26", int(player["Pres_25_26"]))
+        c1.metric("Presenze", int(player["Pres_25_26"]))
         c2.metric("Gol", int(player["Gol_25_26"]))
         c3.metric("Assist", int(player["Assist_25_26"]))
         c4.metric("Gialli", int(player["Gialli_25_26"]))
         c5.metric("Rossi", int(player["Rossi_25_26"]))
         c6.metric("MV", player["MV_25_26"])
         c7.metric("FM", player["FM_25_26"])
-        st.info(f"Status: {player['Status']} | Quotazione: {player['Quotazione']} cr")
+        st.markdown(f"""
+        * **Status & Consigli:** {player['Status']}
+        * **Quotazione di Riferimento:** {player['Quotazione']} crediti
+        * **Budget Ruolo Disponibile:** {int(b_p if player['Ruolo']=='Portiere' else b_d if player['Ruolo']=='Difensore' else b_c if player['Ruolo']=='Centrocampista' else b_a)} cr
+        """)
     else:
-        st.warning("Nessun giocatore trovato!")
+        st.warning("⚠ Nessun giocatore trovato!")
 
 with tab2:
-    st.subheader(f"Database Completo Serie A ({len(df)} Giocatori)")
+    st.subheader(f"📋 Database Completo Serie A ({len(df)} Giocatori) - Stats 25/26")
     col_f1, col_f2, col_f3 = st.columns(3)
     with col_f1:
-        filtro_ruolo = st.multiselect("Ruolo:", options=df["Ruolo"].unique(), default=df["Ruolo"].unique())
+        filtro_ruolo = st.multiselect("Filtra per Ruolo:", options=df["Ruolo"].unique(), default=df["Ruolo"].unique())
     with col_f2:
-        filtro_squadra = st.multiselect("Squadra:", options=sorted(df["Squadra"].unique()), default=sorted(df["Squadra"].unique()))
+        filtro_squadra = st.multiselect("Filtra per Squadra:", options=sorted(df["Squadra"].unique()), default=sorted(df["Squadra"].unique()))
     with col_f3:
-        filtro_conv = st.multiselect("Convenienza:", options=df["Convenienza"].unique(), default=df["Convenienza"].unique())
+        filtro_conv = st.multiselect("Filtra per Convenienza:", options=df["Convenienza"].unique(), default=df["Convenienza"].unique())
     df_filtered = df[(df["Ruolo"].isin(filtro_ruolo)) & (df["Squadra"].isin(filtro_squadra)) & (df["Convenienza"].isin(filtro_conv))]
     st.dataframe(df_filtered[["Nome","Squadra","Ruolo","Titolarita_%","Spesa_Max_Consigliata_(cr)","Convenienza","Status","Pres_25_26","Gol_25_26","Assist_25_26","Gialli_25_26","Rossi_25_26","MV_25_26","FM_25_26"]], use_container_width=True, hide_index=True)
