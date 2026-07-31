@@ -1,7 +1,5 @@
 
 import pandas as pd
-
-
 st.title("⚽ FantaHub Pro - Guida Asta Serie A (1500 Crediti)")
 st.caption("Database completo di tutte le squadre e giocatori con valutazioni, titolarità e spesa consigliata.")
 
