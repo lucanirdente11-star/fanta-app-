@@ -901,10 +901,28 @@ with tab3:
         st.success(f"✅ Rosa 25 creata! Spesa {spesa_tot} cr / {budget_totale} cr - Risparmio {budget_totale-spesa_tot} cr | P:{len(portieri)} D:{len(difensori)} C:{len(centrocampisti)} A:{len(attaccanti)}")
         
         st.markdown(f"## ⚽ FORMAZIONE TITOLARE {modulo} (scelta automaticamente)")
-        st.markdown(f"**POR:** {tit_p.iloc[0]['Nome']} ({tit_p.iloc[0]['Squadra']}) - {tit_p.iloc[0]['Pres_25_26']} pres, FM {tit_p.iloc[0]['FM_25_26']}")
-        st.markdown(f"**DIF ({n_d}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']}G {r['Assist_25_26']}A Gialli:{r['Gialli_25_26']}" for _, r in tit_d.iterrows()]))
-        st.markdown(f"**CEN ({n_c}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']}G {r['Assist_25_26']}A" for _, r in tit_c.iterrows()]))
-        st.markdown(f"**ATT ({n_a}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']} GOL" for _, r in tit_a.iterrows()]))
+        try:
+            if not tit_p.empty:
+                st.markdown(f"**POR:** {tit_p.iloc[0]['Nome']} ({tit_p.iloc[0]['Squadra']}) - {tit_p.iloc[0]['Pres_25_26']} pres, FM {tit_p.iloc[0]['FM_25_26']}")
+            else:
+                st.warning("Portiere non trovato")
+        except Exception as e:
+            st.error(f"Errore portiere: {e}")
+        try:
+            if not tit_d.empty:
+                st.markdown(f"**DIF ({n_d}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']}G {r['Assist_25_26']}A Gialli:{r['Gialli_25_26']}" for _, r in tit_d.iterrows()]))
+        except:
+            st.write("Difensori non disponibili")
+        try:
+            if not tit_c.empty:
+                st.markdown(f"**CEN ({n_c}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']}G {r['Assist_25_26']}A" for _, r in tit_c.iterrows()]))
+        except:
+            st.write("Centrocampisti non disponibili")
+        try:
+            if not tit_a.empty:
+                st.markdown(f"**ATT ({n_a}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']} GOL" for _, r in tit_a.iterrows()]))
+        except:
+            st.write("Attaccanti non disponibili")
         
         st.divider()
         st.markdown("## 🪑 PANCHINA AUTOMATICA COMPLETA")
