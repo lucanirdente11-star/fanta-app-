@@ -795,6 +795,10 @@ def crea_squadra_ideale(df, budget_p, budget_d, budget_c, budget_a, strategia="B
         squadra.append(r)
         spesa_tot += r["Spesa_Max_Consigliata_(cr)"]
     
+    if len(squadra)==0:
+        # fallback emergency
+        squadra = df.sort_values(by='FM_25_26', ascending=False).head(25).to_dict('records')
+        spesa_tot = sum([r['Spesa_Max_Consigliata_(cr)'] for r in squadra])
     df_squadra = pd.DataFrame(squadra)
     return df_squadra, spesa_tot
 
@@ -884,10 +888,20 @@ with tab3:
             if modulo == "3-4-1-2":
                 n_d, n_c, n_a = 3,5,2
         
-        tit_p = portieri_ord.head(1)
-        tit_d = difensori_ord.head(n_d)
-        tit_c = centrocampisti_ord.head(n_c)
-        tit_a = attaccanti_ord.head(n_a)
+        # FIX anti-crash se filtri vuoti
+        if portieri_ord.empty:
+            portieri_ord = df[df["Ruolo"]=="Portiere"].sort_values(by="FM_25_26", ascending=False)
+        if difensori_ord.empty:
+            difensori_ord = df[df["Ruolo"]=="Difensore"].sort_values(by="FM_25_26", ascending=False)
+        if centrocampisti_ord.empty:
+            centrocampisti_ord = df[df["Ruolo"]=="Centrocampista"].sort_values(by="FM_25_26", ascending=False)
+        if attaccanti_ord.empty:
+            attaccanti_ord = df[df["Ruolo"]=="Attaccante"].sort_values(by="FM_25_26", ascending=False)
+        
+        tit_p = portieri_ord.head(1) if not portieri_ord.empty else df[df["Ruolo"]=="Portiere"].head(1)
+        tit_d = difensori_ord.head(n_d) if len(difensori_ord)>=n_d else difensori_ord
+        tit_c = centrocampisti_ord.head(n_c) if len(centrocampisti_ord)>=n_c else centrocampisti_ord
+        tit_a = attaccanti_ord.head(n_a) if len(attaccanti_ord)>=n_a else attaccanti_ord
         
         panch_p = portieri_ord.iloc[1:]
         panch_d = difensori_ord.iloc[n_d:]
@@ -897,7 +911,10 @@ with tab3:
         st.success(f"Rosa da 25 creata! Spesa {spesa_tot} cr / {budget_totale} cr - Risparmio {budget_totale-spesa_tot} cr")
         
         st.markdown(f"## ⚽ FORMAZIONE TITOLARE AUTOMATICA {modulo}")
-        st.markdown(f"**Portiere:** {tit_p.iloc[0]['Nome']} ({tit_p.iloc[0]['Squadra']}) - {tit_p.iloc[0]['Pres_25_26']} pres, FM {tit_p.iloc[0]['FM_25_26']}")
+        if not tit_p.empty:
+            st.markdown(f"**Portiere:** {tit_p.iloc[0]['Nome']} ({tit_p.iloc[0]['Squadra']}) - {tit_p.iloc[0]['Pres_25_26']} pres, FM {tit_p.iloc[0]['FM_25_26']}")
+        else:
+            st.error("Nessun portiere trovato, riprova con strategia diversa")
         st.markdown(f"**Difensori ({n_d}):** " + ", ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']}G" for _, r in tit_d.iterrows()]))
         st.markdown(f"**Centrocampisti ({n_c}):** " + ", ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']}G {r['Assist_25_26']}A" for _, r in tit_c.iterrows()]))
         st.markdown(f"**Attaccanti ({n_a}):** " + ", ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']} GOL" for _, r in tit_a.iterrows()]))
