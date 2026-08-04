@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="FantaHub Pro - Database Serie A", page_icon="⚽", layout="wide")
 st.title("⚽ FantaHub Pro - Guida Asta Serie A (1500 Crediti)")
-st.caption("Database completo + Squadre Ideali con Panchinari - FIXATO")
+st.caption("Database completo di tutte le squadre e giocatori con valutazioni, titolarità e spesa consigliata.")
 
 def load_data():
     giocatori = [
@@ -727,236 +727,51 @@ def calcola_spesa_max(row):
     return int(max(1, spesa))
 
 df["Spesa_Max_Consigliata_(cr)"] = df.apply(calcola_spesa_max, axis=1)
-df["Score"] = df["Titolarita_%"] * 0.4 + df["FM_25_26"] * 10 + df["Quotazione"] * 0.2
 
-def crea_squadra_ideale_robusta(df, strategia="Bilanciata"):
-    # Sempre 25 giocatori: 3P, 8D, 8C, 6A
-    df_t = df[df["Titolarita_%"] >= 20].copy()
-    if df_t.empty:
-        df_t = df.copy()
-    
-    squadra_list = []
-    
-    # PORTIERI - SEMPRE 3
-    portieri_all = df_t[df_t["Ruolo"]=="Portiere"].sort_values(by="FM_25_26", ascending=False)
-    if len(portieri_all) < 3:
-        portieri_all = df[df["Ruolo"]=="Portiere"].sort_values(by="FM_25_26", ascending=False)
-    # 1 top + 2 economici stessa squadra del top se possibile
-    top_p = portieri_all.head(1)
-    altri_p = df[df["Ruolo"]=="Portiere"].sort_values(by="Quotazione").head(10)
-    # Escludi il top già preso
-    altri_p = altri_p[~altri_p["Nome"].isin(top_p["Nome"].tolist())].head(2)
-    scelti_p = pd.concat([top_p, altri_p])
-    if len(scelti_p) < 3:
-        extra = df[df["Ruolo"]=="Portiere"].head(3-len(scelti_p))
-        scelti_p = pd.concat([scelti_p, extra])
-    
-    # DIFENSORI - SEMPRE 8
-    difensori_all = df_t[df_t["Ruolo"]=="Difensore"].sort_values(by="Score", ascending=False)
-    if strategia == "Top":
-        scelti_d = difensori_all.head(8)
-    elif strategia == "Scommesse":
-        # 3 top + 5 low cost
-        top_d = difensori_all.head(3)
-        low_d = df[df["Ruolo"]=="Difensore"].sort_values(by="Quotazione").head(20).tail(5)
-        scelti_d = pd.concat([top_d, low_d]).head(8)
-    else:
-        scelti_d = difensori_all.head(8)
-    if len(scelti_d) < 8:
-        extra = df[df["Ruolo"]=="Difensore"].head(8-len(scelti_d))
-        scelti_d = pd.concat([scelti_d, extra])
-    
-    # CENTROCAMPISTI - SEMPRE 8
-    centrocampisti_all = df_t[df_t["Ruolo"]=="Centrocampista"].sort_values(by="Score", ascending=False)
-    if strategia == "Top":
-        scelti_c = centrocampisti_all.head(8)
-    else:
-        scelti_c = centrocampisti_all.head(8)
-    if len(scelti_c) < 8:
-        extra = df[df["Ruolo"]=="Centrocampista"].head(8-len(scelti_c))
-        scelti_c = pd.concat([scelti_c, extra])
-    
-    # ATTACCANTI - SEMPRE 6
-    attaccanti_all = df_t[df_t["Ruolo"]=="Attaccante"].sort_values(by="Score", ascending=False)
-    if strategia == "Top":
-        scelti_a = attaccanti_all.head(6)
-    elif strategia == "Scommesse":
-        top_a = attaccanti_all.head(2)
-        low_a = df[df["Ruolo"]=="Attaccante"].sort_values(by="Quotazione").head(15).tail(4)
-        scelti_a = pd.concat([top_a, low_a]).head(6)
-    else:
-        scelti_a = attaccanti_all.head(6)
-    if len(scelti_a) < 6:
-        extra = df[df["Ruolo"]=="Attaccante"].head(6-len(scelti_a))
-        scelti_a = pd.concat([scelti_a, extra])
-    
-    for _, r in scelti_p.iterrows():
-        squadra_list.append(r)
-    for _, r in scelti_d.iterrows():
-        squadra_list.append(r)
-    for _, r in scelti_c.iterrows():
-        squadra_list.append(r)
-    for _, r in scelti_a.iterrows():
-        squadra_list.append(r)
-    
-    df_squadra = pd.DataFrame(squadra_list).drop_duplicates(subset=["Nome"])
-    # Assicura 25
-    while len(df_squadra) < 25:
-        extra = df[~df["Nome"].isin(df_squadra["Nome"].tolist())].head(1)
-        df_squadra = pd.concat([df_squadra, extra])
-    
-    spesa_tot = df_squadra["Spesa_Max_Consigliata_(cr)"].sum()
-    return df_squadra, int(spesa_tot)
-
-tab1, tab2, tab3 = st.tabs(["🔍 Cerca Giocatore", "📋 Listone", "🏆 Squadre Ideali + Formazione Auto"])
+tab1, tab2 = st.tabs(["🔍 Cerca Giocatore & Scheda Asta", "📋 Listone Completo Serie A"])
 
 with tab1:
-    st.subheader("🔎 Cerca un Giocatore")
-    search_input = st.text_input("Scrivi il nome:", "")
+    st.subheader("🔎 Cerca un Giocatore nel Database")
+    search_input = st.text_input("✍ Scrivi il nome del giocatore (es. Lautaro, De Bruyne, Berardi):", "")
     if search_input:
         filtered_names = df[df["Nome"].str.contains(search_input, case=False, na=False)]["Nome"].tolist()
     else:
         filtered_names = sorted(df["Nome"].tolist())
     if filtered_names:
-        selected_player = st.selectbox("Seleziona:", filtered_names)
+        selected_player = st.selectbox("Seleziona il calciatore trovato:", filtered_names)
         player = df[df["Nome"] == selected_player].iloc[0]
         st.markdown(f"## 👤 {player['Nome']} ({player['Squadra']})")
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Ruolo", player["Ruolo"])
-        col2.metric("Titolarità", f"{player['Titolarita_%']}%")
-        col3.metric("SPESA MAX", f"{player['Spesa_Max_Consigliata_(cr)']} cr")
-        col4.metric("Convenienza", player["Convenienza"])
+        col2.metric("Titolarità Esperta", f"{player['Titolarita_%']}%")
+        col3.metric("SPESA MAX CONSIGLIATA", f"{player['Spesa_Max_Consigliata_(cr)']} cr")
+        col4.metric("Convenienza Asta", player["Convenienza"])
         st.divider()
         st.subheader("📊 Statistiche 25/26")
         c1,c2,c3,c4,c5,c6,c7 = st.columns(7)
-        c1.metric("Pres", int(player["Pres_25_26"]))
+        c1.metric("Presenze", int(player["Pres_25_26"]))
         c2.metric("Gol", int(player["Gol_25_26"]))
         c3.metric("Assist", int(player["Assist_25_26"]))
         c4.metric("Gialli", int(player["Gialli_25_26"]))
         c5.metric("Rossi", int(player["Rossi_25_26"]))
         c6.metric("MV", player["MV_25_26"])
         c7.metric("FM", player["FM_25_26"])
+        st.markdown(f"""
+        * **Status & Consigli:** {player['Status']}
+        * **Quotazione di Riferimento:** {player['Quotazione']} crediti
+        * **Budget Ruolo Disponibile:** {int(b_p if player['Ruolo']=='Portiere' else b_d if player['Ruolo']=='Difensore' else b_c if player['Ruolo']=='Centrocampista' else b_a)} cr
+        """)
+    else:
+        st.warning("⚠ Nessun giocatore trovato!")
 
 with tab2:
-    st.subheader(f"📋 Database {len(df)} Giocatori")
-    f1,f2,f3 = st.columns(3)
-    with f1:
-        fr = st.multiselect("Ruolo:", options=df["Ruolo"].unique(), default=df["Ruolo"].unique(), key="r1")
-    with f2:
-        fs = st.multiselect("Squadra:", options=sorted(df["Squadra"].unique()), default=sorted(df["Squadra"].unique()), key="s1")
-    with f3:
-        fc = st.multiselect("Convenienza:", options=df["Convenienza"].unique(), default=df["Convenienza"].unique(), key="c1")
-    df_f = df[(df["Ruolo"].isin(fr)) & (df["Squadra"].isin(fs)) & (df["Convenienza"].isin(fc))]
-    st.dataframe(df_f[["Nome","Squadra","Ruolo","Titolarita_%","Spesa_Max_Consigliata_(cr)","Pres_25_26","Gol_25_26","Assist_25_26","Gialli_25_26","Rossi_25_26","MV_25_26","FM_25_26"]], use_container_width=True, hide_index=True)
-
-with tab3:
-    st.subheader("🏆 Generatore Automatico - Formazione Titolare + Panchina Completa")
-    st.caption(f"Budget: {budget_totale} cr | P:{int(b_p)} D:{int(b_d)} C:{int(b_c)} A:{int(b_a)}")
-    c1,c2,c3 = st.columns(3)
-    with c1:
-        strategia = st.selectbox("Strategia:", ["Bilanciata", "Top", "Scommesse"])
-    with c2:
-        modulo = st.selectbox("Modulo:", ["3-4-3", "3-5-2", "4-3-3", "4-4-2"])
-    with c3:
-        criterio = st.selectbox("Titolari per:", ["FM 25/26", "Titolarità", "Gol+Assist"])
-    
-    if st.button("🔥 GENERA ROSA + FORMAZIONE", type="primary"):
-        squadra_df, spesa_tot = crea_squadra_ideale_robusta(df, strategia)
-        
-        def ordina(sub_df, criterio):
-            if sub_df.empty:
-                return sub_df
-            if criterio == "FM 25/26":
-                return sub_df.sort_values(by="FM_25_26", ascending=False)
-            elif criterio == "Titolarità":
-                return sub_df.sort_values(by="Titolarita_%", ascending=False)
-            else:
-                sub_df = sub_df.copy()
-                sub_df["G_A"] = sub_df["Gol_25_26"] + sub_df["Assist_25_26"]
-                return sub_df.sort_values(by="G_A", ascending=False)
-        
-        portieri = squadra_df[squadra_df["Ruolo"]=="Portiere"]
-        difensori = squadra_df[squadra_df["Ruolo"]=="Difensore"]
-        centrocampisti = squadra_df[squadra_df["Ruolo"]=="Centrocampista"]
-        attaccanti = squadra_df[squadra_df["Ruolo"]=="Attaccante"]
-        
-        portieri_ord = ordina(portieri, criterio)
-        difensori_ord = ordina(difensori, criterio)
-        centrocampisti_ord = ordina(centrocampisti, criterio)
-        attaccanti_ord = ordina(attaccanti, criterio)
-        
-        # Modulo
-        n_d, n_c, n_a = map(int, modulo.split("-"))
-        
-        tit_p = portieri_ord.head(1)
-        tit_d = difensori_ord.head(n_d)
-        tit_c = centrocampisti_ord.head(n_c)
-        tit_a = attaccanti_ord.head(n_a)
-        
-        panch_p = portieri_ord.iloc[1:] if len(portieri_ord)>1 else pd.DataFrame()
-        panch_d = difensori_ord.iloc[n_d:] if len(difensori_ord)>n_d else pd.DataFrame()
-        panch_c = centrocampisti_ord.iloc[n_c:] if len(centrocampisti_ord)>n_c else pd.DataFrame()
-        panch_a = attaccanti_ord.iloc[n_a:] if len(attaccanti_ord)>n_a else pd.DataFrame()
-        
-        st.success(f"✅ Rosa 25 creata! Spesa {spesa_tot} cr / {budget_totale} cr - Risparmio {budget_totale-spesa_tot} cr | P:{len(portieri)} D:{len(difensori)} C:{len(centrocampisti)} A:{len(attaccanti)}")
-        
-        st.markdown(f"## ⚽ FORMAZIONE TITOLARE {modulo} (scelta automaticamente)")
-        try:
-            if not tit_p.empty:
-                st.markdown(f"**POR:** {tit_p.iloc[0]['Nome']} ({tit_p.iloc[0]['Squadra']}) - {tit_p.iloc[0]['Pres_25_26']} pres, FM {tit_p.iloc[0]['FM_25_26']}")
-            else:
-                st.warning("Portiere non trovato")
-        except Exception as e:
-            st.error(f"Errore portiere: {e}")
-        try:
-            if not tit_d.empty:
-                st.markdown(f"**DIF ({n_d}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']}G {r['Assist_25_26']}A Gialli:{r['Gialli_25_26']}" for _, r in tit_d.iterrows()]))
-        except:
-            st.write("Difensori non disponibili")
-        try:
-            if not tit_c.empty:
-                st.markdown(f"**CEN ({n_c}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']}G {r['Assist_25_26']}A" for _, r in tit_c.iterrows()]))
-        except:
-            st.write("Centrocampisti non disponibili")
-        try:
-            if not tit_a.empty:
-                st.markdown(f"**ATT ({n_a}):** " + " | ".join([f"{r['Nome']} ({r['Squadra']}) {r['Gol_25_26']} GOL" for _, r in tit_a.iterrows()]))
-        except:
-            st.write("Attaccanti non disponibili")
-        
-        st.divider()
-        st.markdown("## 🪑 PANCHINA AUTOMATICA COMPLETA")
-        colA, colB, colC, colD = st.columns(4)
-        with colA:
-            st.markdown(f"**Portieri ({len(panch_p)})**")
-            if not panch_p.empty:
-                st.dataframe(panch_p[["Nome","Squadra","Pres_25_26","FM_25_26"]], hide_index=True)
-            else:
-                st.write("Nessuno")
-        with colB:
-            st.markdown(f"**Difensori ({len(panch_d)})**")
-            if not panch_d.empty:
-                st.dataframe(panch_d[["Nome","Squadra","Pres_25_26","Gol_25_26","FM_25_26"]], hide_index=True)
-            else:
-                st.write("Nessuno")
-        with colC:
-            st.markdown(f"**Centrocampisti ({len(panch_c)})**")
-            if not panch_c.empty:
-                st.dataframe(panch_c[["Nome","Squadra","Pres_25_26","Gol_25_26","Assist_25_26","FM_25_26"]], hide_index=True)
-            else:
-                st.write("Nessuno")
-        with colD:
-            st.markdown(f"**Attaccanti ({len(panch_a)})**")
-            if not panch_a.empty:
-                st.dataframe(panch_a[["Nome","Squadra","Pres_25_26","Gol_25_26","FM_25_26"]], hide_index=True)
-            else:
-                st.write("Nessuno")
-        
-        st.divider()
-        st.markdown("#### 📋 Rosa Completa 25")
-        st.dataframe(squadra_df[["Nome","Squadra","Ruolo","Pres_25_26","Gol_25_26","Assist_25_26","Gialli_25_26","Rossi_25_26","MV_25_26","FM_25_26","Spesa_Max_Consigliata_(cr)"]].sort_values(by="Ruolo"), use_container_width=True, hide_index=True)
-        
-        csv = squadra_df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Scarica CSV", data=csv, file_name=f"rosa_{strategia}_{modulo}.csv", mime="text/csv")
-    else:
-        st.info("Clicca per generare - ora la panchina mostra TUTTI i ruoli con 3P, 8D, 8C, 6A garantiti!")
+    st.subheader(f"📋 Database Completo Serie A ({len(df)} Giocatori) - Stats 25/26")
+    col_f1, col_f2, col_f3 = st.columns(3)
+    with col_f1:
+        filtro_ruolo = st.multiselect("Filtra per Ruolo:", options=df["Ruolo"].unique(), default=df["Ruolo"].unique())
+    with col_f2:
+        filtro_squadra = st.multiselect("Filtra per Squadra:", options=sorted(df["Squadra"].unique()), default=sorted(df["Squadra"].unique()))
+    with col_f3:
+        filtro_conv = st.multiselect("Filtra per Convenienza:", options=df["Convenienza"].unique(), default=df["Convenienza"].unique())
+    df_filtered = df[(df["Ruolo"].isin(filtro_ruolo)) & (df["Squadra"].isin(filtro_squadra)) & (df["Convenienza"].isin(filtro_conv))]
+    st.dataframe(df_filtered[["Nome","Squadra","Ruolo","Titolarita_%","Spesa_Max_Consigliata_(cr)","Convenienza","Status","Pres_25_26","Gol_25_26","Assist_25_26","Gialli_25_26","Rossi_25_26","MV_25_26","FM_25_26"]], use_container_width=True, hide_index=True)
