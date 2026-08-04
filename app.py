@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
+import random
 
 st.set_page_config(page_title="FantaHub Pro - Database Serie A", page_icon="⚽", layout="wide")
 st.title("⚽ FantaHub Pro - Guida Asta Serie A (1500 Crediti)")
-st.caption("Database completo di tutte le squadre e giocatori con valutazioni, titolarità e spesa consigliata.")
+st.caption("Database completo + Squadre Ideali con Panchinari")
 
 def load_data():
     giocatori = [
@@ -727,8 +728,77 @@ def calcola_spesa_max(row):
     return int(max(1, spesa))
 
 df["Spesa_Max_Consigliata_(cr)"] = df.apply(calcola_spesa_max, axis=1)
+df["Score"] = df["Titolarita_%"] * 0.4 + df["FM_25_26"] * 10 + df["Quotazione"] * 0.2
 
-tab1, tab2 = st.tabs(["🔍 Cerca Giocatore & Scheda Asta", "📋 Listone Completo Serie A"])
+# --- FUNZIONE SQUADRA IDEALE ---
+def crea_squadra_ideale(df, budget_p, budget_d, budget_c, budget_a, strategia="Bilanciata"):
+    # Filtra solo titolari >40%
+    df_t = df[df["Titolarita_%"] >= 30].copy()
+    
+    squadra = []
+    spesa_tot = 0
+    
+    # PORTIERI: 3 (1 top + 2 riserve stessa squadra o low cost)
+    if strategia == "Top":
+        portieri = df_t[df_t["Ruolo"]=="Portiere"].sort_values(by="FM_25_26", ascending=False).head(10)
+    elif strategia == "Scommesse":
+        portieri = df_t[df_t["Ruolo"]=="Portiere"].sort_values(by="Quotazione").head(10)
+    else:
+        portieri = df_t[df_t["Ruolo"]=="Portiere"].sort_values(by="Score", ascending=False).head(15)
+    
+    # Prendi 1 top e 2 low cost
+    if len(portieri) >=3:
+        top_p = portieri.iloc[0:1]
+        low_p = df[df["Ruolo"]=="Portiere"].sort_values(by="Quotazione").head(5).tail(2)
+        scelti_p = pd.concat([top_p, low_p])
+    else:
+        scelti_p = portieri.head(3)
+    
+    for _, r in scelti_p.iterrows():
+        squadra.append(r)
+        spesa_tot += r["Spesa_Max_Consigliata_(cr)"]
+    
+    # DIFENSORI: 8 (3 titolari top + 5 panchinari scommesse)
+    difensori_sorted = df_t[df_t["Ruolo"]=="Difensore"].sort_values(by="Score", ascending=False)
+    if strategia == "Top":
+        scelti_d = difensori_sorted.head(8)
+    elif strategia == "Scommesse":
+        scelti_d = pd.concat([difensori_sorted.head(3), difensori_sorted.tail(5)]).head(8)
+    else:
+        scelti_d = pd.concat([difensori_sorted.head(4), difensori_sorted.iloc[10:14]]).head(8)
+    
+    for _, r in scelti_d.iterrows():
+        squadra.append(r)
+        spesa_tot += r["Spesa_Max_Consigliata_(cr)"]
+    
+    # CENTROCAMPISTI: 8
+    centrocampisti_sorted = df_t[df_t["Ruolo"]=="Centrocampista"].sort_values(by="Score", ascending=False)
+    if strategia == "Top":
+        scelti_c = centrocampisti_sorted.head(8)
+    else:
+        scelti_c = pd.concat([centrocampisti_sorted.head(4), centrocampisti_sorted.iloc[8:12]]).head(8)
+    
+    for _, r in scelti_c.iterrows():
+        squadra.append(r)
+        spesa_tot += r["Spesa_Max_Consigliata_(cr)"]
+    
+    # ATTACCANTI: 6 (2 top + 2 medi + 2 scommesse)
+    attaccanti_sorted = df_t[df_t["Ruolo"]=="Attaccante"].sort_values(by="Score", ascending=False)
+    if strategia == "Top":
+        scelti_a = attaccanti_sorted.head(6)
+    elif strategia == "Scommesse":
+        scelti_a = pd.concat([attaccanti_sorted.head(2), attaccanti_sorted.iloc[10:14]]).head(6)
+    else:
+        scelti_a = pd.concat([attaccanti_sorted.head(3), attaccanti_sorted.iloc[8:11]]).head(6)
+    
+    for _, r in scelti_a.iterrows():
+        squadra.append(r)
+        spesa_tot += r["Spesa_Max_Consigliata_(cr)"]
+    
+    df_squadra = pd.DataFrame(squadra)
+    return df_squadra, spesa_tot
+
+tab1, tab2, tab3 = st.tabs(["🔍 Cerca Giocatore", "📋 Listone", "🏆 Squadre Ideali + Panchina"])
 
 with tab1:
     st.subheader("🔎 Cerca un Giocatore nel Database")
@@ -747,7 +817,7 @@ with tab1:
         col3.metric("SPESA MAX CONSIGLIATA", f"{player['Spesa_Max_Consigliata_(cr)']} cr")
         col4.metric("Convenienza Asta", player["Convenienza"])
         st.divider()
-        st.subheader("📊 Statistiche 25/26")
+        st.subheader("📊 Statistiche 25/26 (Anno Scorso)")
         c1,c2,c3,c4,c5,c6,c7 = st.columns(7)
         c1.metric("Presenze", int(player["Pres_25_26"]))
         c2.metric("Gol", int(player["Gol_25_26"]))
@@ -756,22 +826,68 @@ with tab1:
         c5.metric("Rossi", int(player["Rossi_25_26"]))
         c6.metric("MV", player["MV_25_26"])
         c7.metric("FM", player["FM_25_26"])
-        st.markdown(f"""
-        * **Status & Consigli:** {player['Status']}
-        * **Quotazione di Riferimento:** {player['Quotazione']} crediti
-        * **Budget Ruolo Disponibile:** {int(b_p if player['Ruolo']=='Portiere' else b_d if player['Ruolo']=='Difensore' else b_c if player['Ruolo']=='Centrocampista' else b_a)} cr
-        """)
-    else:
-        st.warning("⚠ Nessun giocatore trovato!")
+        st.markdown(f"* **Status:** {player['Status']} | **Quot:** {player['Quotazione']} cr")
 
 with tab2:
     st.subheader(f"📋 Database Completo Serie A ({len(df)} Giocatori) - Stats 25/26")
     col_f1, col_f2, col_f3 = st.columns(3)
     with col_f1:
-        filtro_ruolo = st.multiselect("Filtra per Ruolo:", options=df["Ruolo"].unique(), default=df["Ruolo"].unique())
+        filtro_ruolo = st.multiselect("Ruolo:", options=df["Ruolo"].unique(), default=df["Ruolo"].unique(), key="r1")
     with col_f2:
-        filtro_squadra = st.multiselect("Filtra per Squadra:", options=sorted(df["Squadra"].unique()), default=sorted(df["Squadra"].unique()))
+        filtro_squadra = st.multiselect("Squadra:", options=sorted(df["Squadra"].unique()), default=sorted(df["Squadra"].unique()), key="s1")
     with col_f3:
-        filtro_conv = st.multiselect("Filtra per Convenienza:", options=df["Convenienza"].unique(), default=df["Convenienza"].unique())
+        filtro_conv = st.multiselect("Convenienza:", options=df["Convenienza"].unique(), default=df["Convenienza"].unique(), key="c1")
     df_filtered = df[(df["Ruolo"].isin(filtro_ruolo)) & (df["Squadra"].isin(filtro_squadra)) & (df["Convenienza"].isin(filtro_conv))]
     st.dataframe(df_filtered[["Nome","Squadra","Ruolo","Titolarita_%","Spesa_Max_Consigliata_(cr)","Convenienza","Status","Pres_25_26","Gol_25_26","Assist_25_26","Gialli_25_26","Rossi_25_26","MV_25_26","FM_25_26"]], use_container_width=True, hide_index=True)
+
+with tab3:
+    st.subheader("🏆 Generatore Squadre Ideali (25 giocatori con panchina)")
+    st.caption(f"Budget totale: {budget_totale} cr | Porta: {int(b_p)} cr | Difesa: {int(b_d)} cr | Centro: {int(b_c)} cr | Attacco: {int(b_a)} cr")
+    
+    strat1, strat2 = st.columns(2)
+    with strat1:
+        strategia = st.selectbox("Strategia Asta:", ["Bilanciata", "Top", "Scommesse"], help="Bilanciata = mix top e scommesse, Top = solo big, Scommesse = low cost")
+    with strat2:
+        modulo = st.selectbox("Modulo titolare:", ["3-4-3", "3-5-2", "4-3-3", "4-4-2"])
+    
+    if st.button("🔥 Genera Squadra Ideale", type="primary"):
+        squadra_df, spesa_tot = crea_squadra_ideale(df, b_p, b_d, b_c, b_a, strategia)
+        
+        st.success(f"Squadra generata! Spesa stimata: {spesa_tot} cr su {budget_totale} cr | Risparmio: {budget_totale - spesa_tot} cr")
+        
+        # Dividi titolari e panchina per modulo
+        portieri = squadra_df[squadra_df["Ruolo"]=="Portiere"]
+        difensori = squadra_df[squadra_df["Ruolo"]=="Difensore"]
+        centrocampisti = squadra_df[squadra_df["Ruolo"]=="Centrocampista"]
+        attaccanti = squadra_df[squadra_df["Ruolo"]=="Attaccante"]
+        
+        st.markdown("### 🧤 Portieri (1 titolare + 2 panchina)")
+        st.dataframe(portieri[["Nome","Squadra","Titolarita_%","Pres_25_26","Gol_25_26","Gialli_25_26","MV_25_26","FM_25_26","Spesa_Max_Consigliata_(cr)"]], use_container_width=True, hide_index=True)
+        
+        st.markdown(f"### 🛡️ Difensori - 8 totali (3-4 titolari + panchina)")
+        st.dataframe(difensori[["Nome","Squadra","Titolarita_%","Pres_25_26","Gol_25_26","Assist_25_26","Gialli_25_26","MV_25_26","FM_25_26","Spesa_Max_Consigliata_(cr)"]], use_container_width=True, hide_index=True)
+        
+        st.markdown(f"### ⚙ Centrocampisti - 8 totali")
+        st.dataframe(centrocampisti[["Nome","Squadra","Titolarita_%","Pres_25_26","Gol_25_26","Assist_25_26","Gialli_25_26","MV_25_26","FM_25_26","Spesa_Max_Consigliata_(cr)"]], use_container_width=True, hide_index=True)
+        
+        st.markdown(f"### ⚽ Attaccanti - 6 totali")
+        st.dataframe(attaccanti[["Nome","Squadra","Titolarita_%","Pres_25_26","Gol_25_26","Assist_25_26","Gialli_25_26","MV_25_26","FM_25_26","Spesa_Max_Consigliata_(cr)"]], use_container_width=True, hide_index=True)
+        
+        st.divider()
+        st.markdown(f"### 📋 Riepilogo Rosa 25 giocatori - Modulo {modulo}")
+        st.markdown(f"**Titolari {modulo}:** {modulo.split('-')[0]} difensori, {modulo.split('-')[1]} centrocampisti, {modulo.split('-')[2]} attaccanti + 1 portiere")
+        st.markdown(f"**Panchina:** {3-1} portieri, {8-int(modulo.split('-')[0])} difensori, {8-int(modulo.split('-')[1])} centrocampisti, {6-int(modulo.split('-')[2])} attaccanti")
+        
+        # Export CSV
+        csv = squadra_df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Scarica Rosa in CSV", data=csv, file_name=f"rosa_ideale_{strategia}_{modulo}.csv", mime="text/csv")
+    else:
+        st.info("👆 Clicca su 'Genera Squadra Ideale' per creare la tua rosa da 25 con titolari e panchinari in base al budget impostato nella sidebar!")
+        st.markdown("""
+        **Come funziona:**
+        - **3 Portieri:** 1 top titolare + 2 low cost
+        - **8 Difensori:** 3-4 titolari affidabili + 4-5 scommesse da panchina
+        - **8 Centrocampisti:** mix di top, medi e scommesse
+        - **6 Attaccanti:** 2-3 top + 3 scommesse
+        - Rispetta il budget che hai impostato (1500 cr di default)
+        """)
