@@ -1,121 +1,201 @@
+st.set_page_config(page_title="FantaHub Pro - Database Serie A", page_icon="⚽️", layout="wide")
 
-import streamlit as st
-import pandas as pd
+st.title("⚽️ FantaHub Pro - Guida Asta Serie A (1500 Crediti)")
+st.caption("Database completo di tutte le squadre e giocatori con valutazioni, titolarità e spesa consigliata.")
 
-st.set_page_config(page_title="FantaHub Pro - Database Serie A COMPLETO", page_icon="⚽", layout="wide")
-
-st.title("⚽ FantaHub Pro - Guida Asta Serie A (1500 Crediti) - TUTTI I GIOCATORI")
-st.caption("Database completo 587 giocatori - Tutti i ruoli con valutazioni, titolarità e spesa consigliata.")
-
-# Carica dati completi parsati dal tuo listone
+# --- DATABASE GIOCATORI COMPLETO ---
 @st.cache_data
 def load_data():
-    df = pd.read_csv("listone_completo.csv")
-    # rinomina per compatibilità con codice precedente
-    df_ren = df.rename(columns={"Nome_Completo":"Nome", "Squadra_Estesa":"Squadra_Lunga"})
-    # Mantieni anche codice squadra
-    df_ren["Squadra"] = df_ren["Squadra"].apply(lambda x: x) # placeholder
-    # Usa Squadra_Estesa come visual
-    df_ren["Squadra_Display"] = df_ren["Squadra_Lunga"] + " (" + df["Squadra"] + ")"
-    return df_ren
+    giocatori = [
+        # --- ATALANTA ---
+        {"Nome": "Honest Ahanor", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 15, "Quotazione": 2, "Status": "Giovane Promessa", "Convenienza": "Bassa"},
+        {"Nome": "Mitchel Bakker", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 45, "Quotazione": 8, "Status": "Scommessa / Alternativa", "Convenienza": "Bassa"},
+        {"Nome": "Raoul Bellanova", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 85, "Quotazione": 35, "Status": "Titolare / Spinta", "Convenienza": "Altissima"},
+        {"Nome": "Lorenzo Bernasconi", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 10, "Quotazione": 1, "Status": "Riserva Giovanile", "Convenienza": "Molto Bassa"},
+        {"Nome": "Giovanni Bonfanti", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 25, "Quotazione": 4, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Marco Carnesecchi", "Squadra": "Atalanta", "Ruolo": "Portiere", "Titolarita_%": 85, "Quotazione": 25, "Status": "Consigliato - Titolare", "Convenienza": "Alta"},
+        {"Nome": "Berat Djimsiti", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 85, "Quotazione": 20, "Status": "Titolare Fisso", "Convenienza": "Alta"},
+        {"Nome": "Gianluca Gaetano", "Squadra": "Atalanta", "Ruolo": "Centrocampista", "Titolarita_%": 60, "Quotazione": 20, "Status": "Rotazione / Qualità", "Convenienza": "Media"},
+        {"Nome": "Isak Hien", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 80, "Quotazione": 22, "Status": "Titolare Difesa", "Convenienza": "Alta"},
+        {"Nome": "Charles De Ketelaere", "Squadra": "Atalanta", "Ruolo": "Centrocampista", "Titolarita_%": 80, "Quotazione": 50, "Status": "Top Slot / Bonus", "Convenienza": "Altissima"},
+        {"Nome": "Sead Kolasinac", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 85, "Quotazione": 24, "Status": "Titolare Esperto", "Convenienza": "Alta"},
+        {"Nome": "Odilon Kossounou", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 75, "Quotazione": 22, "Status": "Rinforzo Difesa", "Convenienza": "Alta"},
+        {"Nome": "Nikola Krstovic", "Squadra": "Atalanta", "Ruolo": "Attaccante", "Titolarita_%": 70, "Quotazione": 35, "Status": "Rotazione Offensiva", "Convenienza": "Media"},
+        {"Nome": "Daniel Maldini", "Squadra": "Atalanta", "Ruolo": "Attaccante", "Titolarita_%": 55, "Quotazione": 18, "Status": "Talento / Jolly", "Convenienza": "Media"},
+        {"Nome": "Mario Pasalic", "Squadra": "Atalanta", "Ruolo": "Centrocampista", "Titolarita_%": 70, "Quotazione": 35, "Status": "Incursore / Gol", "Convenienza": "Alta"},
+        {"Nome": "Giacomo Raspadori", "Squadra": "Atalanta", "Ruolo": "Attaccante", "Titolarita_%": 70, "Quotazione": 40, "Status": "Jolly / Bonus", "Convenienza": "Alta"},
+        {"Nome": "Marten De Roon", "Squadra": "Atalanta", "Ruolo": "Centrocampista", "Titolarita_%": 90, "Quotazione": 22, "Status": "Titolare / Voto Fisso", "Convenienza": "Alta"},
+        {"Nome": "Francesco Rossi", "Squadra": "Atalanta", "Ruolo": "Portiere", "Titolarita_%": 5, "Quotazione": 1, "Status": "Terzo Portiere", "Convenienza": "Molto Bassa"},
+        {"Nome": "Lazar Samardzic", "Squadra": "Atalanta", "Ruolo": "Centrocampista", "Titolarita_%": 75, "Quotazione": 45, "Status": "Qualità / Piazzati", "Convenienza": "Altissima"},
+        {"Nome": "Giorgio Scalvini", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 85, "Quotazione": 30, "Status": "Top Difesa / Giovane Prospetto", "Convenienza": "Alta"},
+        {"Nome": "Gianluca Scamacca", "Squadra": "Atalanta", "Ruolo": "Attaccante", "Titolarita_%": 85, "Quotazione": 75, "Status": "Bomber Titolare", "Convenienza": "Altissima"},
+        {"Nome": "éderson Silva", "Squadra": "Atalanta", "Ruolo": "Centrocampista", "Titolarita_%": 90, "Quotazione": 32, "Status": "Titolare Inamovibile", "Convenienza": "Alta"},
+        {"Nome": "Marco Sportiello", "Squadra": "Atalanta", "Ruolo": "Portiere", "Titolarita_%": 15, "Quotazione": 5, "Status": "Secondo Portiere", "Convenienza": "Bassa"},
+        {"Nome": "Ibrahim Sulemana", "Squadra": "Atalanta", "Ruolo": "Centrocampista", "Titolarita_%": 50, "Quotazione": 12, "Status": "Rotazione", "Convenienza": "Media"},
+        {"Nome": "Kamaldeen Sulemana", "Squadra": "Atalanta", "Ruolo": "Attaccante", "Titolarita_%": 50, "Quotazione": 20, "Status": "Scommessa Esterna", "Convenienza": "Media"},
+        {"Nome": "El Bilal Touré", "Squadra": "Atalanta", "Ruolo": "Attaccante", "Titolarita_%": 50, "Quotazione": 20, "Status": "Scommessa / Alternativa", "Convenienza": "Media"},
+        {"Nome": "Nicola Zalewski", "Squadra": "Atalanta", "Ruolo": "Centrocampista", "Titolarita_%": 65, "Quotazione": 20, "Status": "Jolly Fascia", "Convenienza": "Media"},
+        {"Nome": "Davide Zappacosta", "Squadra": "Atalanta", "Ruolo": "Difensore", "Titolarita_%": 75, "Quotazione": 22, "Status": "Titolare / Spinta", "Convenienza": "Alta"},
 
-# Fallback se csv non trovato (per deployment) - usa dati incorporati
-try:
-    df = load_data()
-except:
-    # Se non trova csv, carica da fallback inline (verrà rigenerato)
-    import os
-    st.error("CSV non trovato, uso fallback")
-    df = pd.DataFrame()
+        # --- BOLOGNA ---
+        {"Nome": "Michel Aebischer", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 75, "Quotazione": 18, "Status": "Titolare Affidabile", "Convenienza": "Alta"},
+        {"Nome": "Rahim Alhassane", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 20, "Quotazione": 5, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Mikel Amondarain", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Oussama El Azzouzi", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 45, "Quotazione": 8, "Status": "Riserva / Rotazione", "Convenienza": "Media"},
+        {"Nome": "Federico Bernardeschi", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 70, "Quotazione": 35, "Status": "Esperienza / Qualità", "Convenienza": "Alta"},
+        {"Nome": "Nicolò Cambiaghi", "Squadra": "Bologna", "Ruolo": "Attaccante", "Titolarita_%": 75, "Quotazione": 30, "Status": "Titolare / Dribbling", "Convenienza": "Alta"},
+        {"Nome": "Nicolò Casale", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 75, "Quotazione": 20, "Status": "Titolare Difesa", "Convenienza": "Alta"},
+        {"Nome": "Santiago Castro", "Squadra": "Bologna", "Ruolo": "Attaccante", "Titolarita_%": 60, "Quotazione": 25, "Status": "Attaccante in Crescita", "Convenienza": "Alta"},
+        {"Nome": "Thijs Dallinga", "Squadra": "Bologna", "Ruolo": "Attaccante", "Titolarita_%": 75, "Quotazione": 45, "Status": "Centravanti Titolare", "Convenienza": "Alta"},
+        {"Nome": "Benja Domínguez", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 40, "Quotazione": 14, "Status": "Scommessa Esterna", "Convenienza": "Media"},
+        {"Nome": "Lewis Ferguson", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 90, "Quotazione": 55, "Status": "Top / Incursore", "Convenienza": "Altissima"},
+        {"Nome": "Remo Freuler", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 90, "Quotazione": 22, "Status": "Titolare / Costanza", "Convenienza": "Alta"},
+        {"Nome": "Torbjørn Heggem", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 30, "Quotazione": 8, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Eivind Helland", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 10, "Quotazione": 2, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Emil Holm", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 65, "Quotazione": 18, "Status": "Alternativa Fascia", "Convenienza": "Media"},
+        {"Nome": "Mihajlo Ilic", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 25, "Quotazione": 6, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Jesper Karlsson", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 50, "Quotazione": 20, "Status": "Scommessa", "Convenienza": "Media"},
+        {"Nome": "Jhon Lucumí", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 80, "Quotazione": 18, "Status": "Titolare Fisso", "Convenienza": "Alta"},
+        {"Nome": "Juan Miranda", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 75, "Quotazione": 22, "Status": "Titolare Fascia", "Convenienza": "Alta"},
+        {"Nome": "Nikola Moro", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 55, "Quotazione": 12, "Status": "Rotazione", "Convenienza": "Bassa"},
+        {"Nome": "Jens Odgaard", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 60, "Quotazione": 22, "Status": "Jolly Offensivo", "Convenienza": "Media"},
+        {"Nome": "Orji Okwonkwo", "Squadra": "Bologna", "Ruolo": "Attaccante", "Titolarita_%": 10, "Quotazione": 1, "Status": "Marginale", "Convenienza": "Molto Bassa"},
+        {"Nome": "Riccardo Orsolini", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 80, "Quotazione": 58, "Status": "Top / Rigorista", "Convenienza": "Altissima"},
+        {"Nome": "Massimo Pessina", "Squadra": "Bologna", "Ruolo": "Portiere", "Titolarita_%": 5, "Quotazione": 1, "Status": "Terzo Portiere", "Convenienza": "Molto Bassa"},
+        {"Nome": "Tommaso Pobega", "Squadra": "Bologna", "Ruolo": "Centrocampista", "Titolarita_%": 70, "Quotazione": 22, "Status": "Incursore Fisico", "Convenienza": "Alta"},
+        {"Nome": "Antonio Raimondo", "Squadra": "Bologna", "Ruolo": "Attaccante", "Titolarita_%": 25, "Quotazione": 8, "Status": "Giovane Promessa", "Convenienza": "Bassa"},
+        {"Nome": "Federico Ravaglia", "Squadra": "Bologna", "Ruolo": "Portiere", "Titolarita_%": 15, "Quotazione": 5, "Status": "Secondo Portiere", "Convenienza": "Bassa"},
+        {"Nome": "Jonathan Rowe", "Squadra": "Bologna", "Ruolo": "Attaccante", "Titolarita_%": 65, "Quotazione": 25, "Status": "Esterno Offensivo", "Convenienza": "Media"},
+        {"Nome": "Lorenzo De Silvestri", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 30, "Quotazione": 6, "Status": "Esperienza / Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Lukasz Skorupski", "Squadra": "Bologna", "Ruolo": "Portiere", "Titolarita_%": 85, "Quotazione": 32, "Status": "Titolare Affidabile", "Convenienza": "Alta"},
+        {"Nome": "Martin Vitík", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 70, "Quotazione": 20, "Status": "Rinforzo Difensivo", "Convenienza": "Alta"},
+        {"Nome": "Nadir Zortea", "Squadra": "Bologna", "Ruolo": "Difensore", "Titolarita_%": 50, "Quotazione": 12, "Status": "Rotazione Fascia", "Convenienza": "Media"},
 
-# --- SIDEBAR BUDGET ---
-st.sidebar.header("⚙ Budget & Gestione Asta")
-budget_totale = st.sidebar.number_input("Budget Iniziale (Crediti)", min_value=100, max_value=3000, value=1500)
+        # --- CAGLIARI ---
+        {"Nome": "Michel Adopo", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 60, "Quotazione": 14, "Status": "Titolare / Quantità", "Convenienza": "Media"},
+        {"Nome": "Demi Akarakiri", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Agustín Albarracín", "Squadra": "Cagliari", "Ruolo": "Attaccante", "Titolarita_%": 20, "Quotazione": 5, "Status": "Scommessa", "Convenienza": "Bassa"},
+        {"Nome": "Gennaro Borrelli", "Squadra": "Cagliari", "Ruolo": "Attaccante", "Titolarita_%": 50, "Quotazione": 16, "Status": "Alternativa Attacco", "Convenienza": "Media"},
+        {"Nome": "Elia Caprile", "Squadra": "Cagliari", "Ruolo": "Portiere", "Titolarita_%": 85, "Quotazione": 28, "Status": "Titolare / Ottimo Potenziale", "Convenienza": "Alta"},
+        {"Nome": "Nicolò Cavuoti", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 15, "Quotazione": 2, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Giuseppe Ciocci", "Squadra": "Cagliari", "Ruolo": "Portiere", "Titolarita_%": 5, "Quotazione": 1, "Status": "Terzo Portiere", "Convenienza": "Molto Bassa"},
+        {"Nome": "Alessandro Deiola", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 60, "Quotazione": 12, "Status": "Rotazione", "Convenienza": "Bassa"},
+        {"Nome": "Sebastiano Esposito", "Squadra": "Cagliari", "Ruolo": "Attaccante", "Titolarita_%": 70, "Quotazione": 25, "Status": "Titolare / Qualità", "Convenienza": "Alta"},
+        {"Nome": "Jacopo Fazzini", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 75, "Quotazione": 24, "Status": "Trequartista / Incursore", "Convenienza": "Alta"},
+        {"Nome": "Mattia Felici", "Squadra": "Cagliari", "Ruolo": "Attaccante", "Titolarita_%": 45, "Quotazione": 12, "Status": "Scommessa Fascia", "Convenienza": "Bassa"},
+        {"Nome": "Nicola Grandu", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Riyad Idrissi", "Squadra": "Cagliari", "Ruolo": "Difensore", "Titolarita_%": 25, "Quotazione": 5, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Velizar-iliya Iliev", "Squadra": "Cagliari", "Ruolo": "Attaccante", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Joseph Liteta", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Paul Mendy", "Squadra": "Cagliari", "Ruolo": "Difensore", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Yerry Mina", "Squadra": "Cagliari", "Ruolo": "Difensore", "Titolarita_%": 80, "Quotazione": 18, "Status": "Titolare / Esperienza", "Convenienza": "Media"},
+        {"Nome": "Kingstone Mutandwa", "Squadra": "Cagliari", "Ruolo": "Attaccante", "Titolarita_%": 35, "Quotazione": 10, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Adam Obert", "Squadra": "Cagliari", "Ruolo": "Difensore", "Titolarita_%": 50, "Quotazione": 8, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Sebastiano Di Paolo", "Squadra": "Cagliari", "Ruolo": "Portiere", "Titolarita_%": 5, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Zé Pedro", "Squadra": "Cagliari", "Ruolo": "Difensore", "Titolarita_%": 30, "Quotazione": 6, "Status": "Rotazione", "Convenienza": "Bassa"},
+        {"Nome": "Matteo Prati", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 75, "Quotazione": 16, "Status": "Regista / Giovane", "Convenienza": "Media"},
+        {"Nome": "Boris Radunovic", "Squadra": "Cagliari", "Ruolo": "Portiere", "Titolarita_%": 15, "Quotazione": 4, "Status": "Secondo Portiere", "Convenienza": "Bassa"},
+        {"Nome": "Othniël Raterink", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Juan Rodríguez", "Squadra": "Cagliari", "Ruolo": "Difensore", "Titolarita_%": 20, "Quotazione": 4, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Alessandro Romano", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Alen Sherri", "Squadra": "Cagliari", "Ruolo": "Portiere", "Titolarita_%": 10, "Quotazione": 2, "Status": "Riserva", "Convenienza": "Molto Bassa"},
+        {"Nome": "Ivan Sulev", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Yael Trepy", "Squadra": "Cagliari", "Ruolo": "Attaccante", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Mateusz Wieteska", "Squadra": "Cagliari", "Ruolo": "Difensore", "Titolarita_%": 45, "Quotazione": 10, "Status": "Rotazione Difesa", "Convenienza": "Bassa"},
+        {"Nome": "Harry Winks", "Squadra": "Cagliari", "Ruolo": "Centrocampista", "Titolarita_%": 85, "Quotazione": 25, "Status": "Regista Titolare", "Convenienza": "Alta"},
+        {"Nome": "Gabriele Zappa", "Squadra": "Cagliari", "Ruolo": "Difensore", "Titolarita_%": 80, "Quotazione": 16, "Status": "Titolare Fascia", "Convenienza": "Media"},
 
-st.sidebar.subheader("% Spesa Consigliata")
-perc_p = st.sidebar.slider("Porta (%)", 1, 10, 4)
-perc_d = st.sidebar.slider("Difesa (%)", 5, 20, 10)
-perc_c = st.sidebar.slider("Centrocampo (%)", 10, 40, 26)
-perc_a = st.sidebar.slider("Attacco (%)", 30, 80, 60)
+        # --- COMO ---
+        {"Nome": "Jayden Addai", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 35, "Quotazione": 10, "Status": "Giovane Scommessa", "Convenienza": "Bassa"},
+        {"Nome": "Emil Audero", "Squadra": "Como", "Ruolo": "Portiere", "Titolarita_%": 85, "Quotazione": 30, "Status": "Titolare Porta", "Convenienza": "Alta"},
+        {"Nome": "Iván Azón", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 40, "Quotazione": 12, "Status": "Rotazione", "Convenienza": "Bassa"},
+        {"Nome": "Martin Baturina", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 80, "Quotazione": 35, "Status": "Talento Puro / Trequartista", "Convenienza": "Altissima"},
+        {"Nome": "Andréa Le Borgne", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 15, "Quotazione": 2, "Status": "Riserva", "Convenienza": "Molto Bassa"},
+        {"Nome": "Matthias Braunöder", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 65, "Quotazione": 14, "Status": "Rotazione", "Convenienza": "Media"},
+        {"Nome": "Ignace Van Der Brempt", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 75, "Quotazione": 18, "Status": "Titolare Fascia", "Convenienza": "Alta"},
+        {"Nome": "Jean Butez", "Squadra": "Como", "Ruolo": "Portiere", "Titolarita_%": 20, "Quotazione": 6, "Status": "Secondo Portiere", "Convenienza": "Bassa"},
+        {"Nome": "Maxence Caqueret", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 85, "Quotazione": 32, "Status": "Regista di Spessore", "Convenienza": "Alta"},
+        {"Nome": "Andrés Cuenca", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 30, "Quotazione": 8, "Status": "Giovane Promessa", "Convenienza": "Bassa"},
+        {"Nome": "Lucas Da Cunha", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 70, "Quotazione": 20, "Status": "Esterno Offensivo", "Convenienza": "Media"},
+        {"Nome": "Assane Diao", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 75, "Quotazione": 28, "Status": "Talento / Velocità", "Convenienza": "Alta"},
+        {"Nome": "Alberto Dossena", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 85, "Quotazione": 20, "Status": "Titolare Inamovibile", "Convenienza": "Alta"},
+        {"Nome": "Tasos Douvikas", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 75, "Quotazione": 32, "Status": "Bomber Titolare", "Convenienza": "Alta"},
+        {"Nome": "Alieu Fadera", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 65, "Quotazione": 18, "Status": "Rotazione Attacco", "Convenienza": "Media"},
+        {"Nome": "Tommaso Fumagalli", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 30, "Quotazione": 8, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Alessandro Gabrielloni", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 40, "Quotazione": 10, "Status": "Uomo Spogliatoio / Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Edoardo Goldaniga", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 80, "Quotazione": 12, "Status": "Titolare Esperto", "Convenienza": "Media"},
+        {"Nome": "Ali Jasim", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 45, "Quotazione": 12, "Status": "Scommessa", "Convenienza": "Bassa"},
+        {"Nome": "Kaiki", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 15, "Quotazione": 2, "Status": "Riserva", "Convenienza": "Molto Bassa"},
+        {"Nome": "Marc Oliver Kempf", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 80, "Quotazione": 16, "Status": "Titolare Difesa", "Convenienza": "Alta"},
+        {"Nome": "Nicolas Kühn", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 70, "Quotazione": 24, "Status": "Esterno Rapido", "Convenienza": "Media"},
+        {"Nome": "Adrian Lahdo", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 20, "Quotazione": 5, "Status": "Giovane", "Convenienza": "Bassa"},
+        {"Nome": "Mattia Liberali", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 30, "Quotazione": 8, "Status": "Giovane Talento", "Convenienza": "Bassa"},
+        {"Nome": "Luca Mazzitelli", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 80, "Quotazione": 24, "Status": "Titolare / Inserimenti", "Convenienza": "Alta"},
+        {"Nome": "Luis Milla", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 85, "Quotazione": 26, "Status": "Regista di Classe", "Convenienza": "Alta"},
+        {"Nome": "Álvaro Morata", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 90, "Quotazione": 75, "Status": "Super Top / Stella Como", "Convenienza": "Altissima"},
+        {"Nome": "Marlon Mustapha", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 30, "Quotazione": 8, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Nico Paz", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 85, "Quotazione": 45, "Status": "Top Slot / Qualità", "Convenienza": "Altissima"},
+        {"Nome": "Máximo Perrone", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 75, "Quotazione": 20, "Status": "Titolare / Visione", "Convenienza": "Media"},
+        {"Nome": "Stefan Posch", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 80, "Quotazione": 22, "Status": "Titolare / Bonus", "Convenienza": "Alta"},
+        {"Nome": "Jacobo Ramón", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 40, "Quotazione": 10, "Status": "Giovane Difensore", "Convenienza": "Bassa"},
+        {"Nome": "Fabio Rispoli", "Squadra": "Como", "Ruolo": "Centrocampista", "Titolarita_%": 15, "Quotazione": 2, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Jesús Rodríguez", "Squadra": "Como", "Ruolo": "Attaccante", "Titolarita_%": 35, "Quotazione": 10, "Status": "Scommessa", "Convenienza": "Bassa"},
+        {"Nome": "Ivan Smolcic", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 50, "Quotazione": 12, "Status": "Rotazione", "Convenienza": "Bassa"},
+        {"Nome": "Noel Törnqvist", "Squadra": "Como", "Ruolo": "Portiere", "Titolarita_%": 10, "Quotazione": 2, "Status": "Terzo Portiere", "Convenienza": "Molto Bassa"},
+        {"Nome": "álex Valle", "Squadra": "Como", "Ruolo": "Difensore", "Titolarita_%": 70, "Quotazione": 18, "Status": "Terzino Spinta", "Convenienza": "Media"},
+        {"Nome": "Mauro Vigorito", "Squadra": "Como", "Ruolo": "Portiere", "Titolarita_%": 5, "Quotazione": 1, "Status": "Terzo Portiere", "Convenienza": "Molto Bassa"},
 
-b_p = (budget_totale * perc_p) / 100
-b_d = (budget_totale * perc_d) / 100
-b_c = (budget_totale * perc_c) / 100
-b_a = (budget_totale * perc_a) / 100
+        # --- FIORENTINA ---
+        {"Nome": "Arthur Atta", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 55, "Quotazione": 16, "Status": "Rotazione Dinamica", "Convenienza": "Media"},
+        {"Nome": "Riccardo Braschi", "Squadra": "Fiorentina", "Ruolo": "Attaccante", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Marco Brescianini", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 75, "Quotazione": 28, "Status": "Incursore da Gol", "Convenienza": "Alta"},
+        {"Nome": "Oliver Christensen", "Squadra": "Fiorentina", "Ruolo": "Portiere", "Titolarita_%": 15, "Quotazione": 5, "Status": "Secondo Portiere", "Convenienza": "Bassa"},
+        {"Nome": "Lapo Deli", "Squadra": "Fiorentina", "Ruolo": "Portiere", "Titolarita_%": 5, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Dodô", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 85, "Quotazione": 24, "Status": "Titolare / Spinta", "Convenienza": "Alta"},
+        {"Nome": "Radu Dragusin", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 85, "Quotazione": 28, "Status": "Muro Difensivo", "Convenienza": "Alta"},
+        {"Nome": "Giovanni Fabbian", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 75, "Quotazione": 32, "Status": "Incursore Pericoloso", "Convenienza": "Alta"},
+        {"Nome": "Nicolò Fagioli", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 80, "Quotazione": 28, "Status": "Regista di Qualità", "Convenienza": "Alta"},
+        {"Nome": "Niccolò Fortini", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 15, "Quotazione": 2, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "David De Gea", "Squadra": "Fiorentina", "Ruolo": "Portiere", "Titolarita_%": 95, "Quotazione": 48, "Status": "Top Portiere", "Convenienza": "Altissima"},
+        {"Nome": "Albert Gudmundsson", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 90, "Quotazione": 75, "Status": "Super Top / Rigorista", "Convenienza": "Altissima"},
+        {"Nome": "álex Jiménez", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 60, "Quotazione": 16, "Status": "Giovane Fascia", "Convenienza": "Media"},
+        {"Nome": "Moise Kean", "Squadra": "Fiorentina", "Ruolo": "Attaccante", "Titolarita_%": 85, "Quotazione": 65, "Status": "Bomber Titolare", "Convenienza": "Altissima"},
+        {"Nome": "Eman Kospo", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Luca Lezzerini", "Squadra": "Fiorentina", "Ruolo": "Portiere", "Titolarita_%": 5, "Quotazione": 1, "Status": "Terzo Portiere", "Convenienza": "Molto Bassa"},
+        {"Nome": "Rolando Mandragora", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 70, "Quotazione": 18, "Status": "Tiro da Fuori / Piazzati", "Convenienza": "Media"},
+        {"Nome": "Matías Moreno", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 50, "Quotazione": 12, "Status": "Rotazione Difesa", "Convenienza": "Bassa"},
+        {"Nome": "Cher Ndour", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 55, "Quotazione": 15, "Status": "Scommessa", "Convenienza": "Media"},
+        {"Nome": "M'bala Nzola", "Squadra": "Fiorentina", "Ruolo": "Attaccante", "Titolarita_%": 50, "Quotazione": 18, "Status": "Alternativa Offensiva", "Convenienza": "Bassa"},
+        {"Nome": "Christ Inao Oulaï", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Fabiano Parisi", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 55, "Quotazione": 14, "Status": "Alternativa Fascia", "Convenienza": "Media"},
+        {"Nome": "Roberto Piccoli", "Squadra": "Fiorentina", "Ruolo": "Attaccante", "Titolarita_%": 60, "Quotazione": 24, "Status": "Vice Kean / Gol", "Convenienza": "Media"},
+        {"Nome": "Marin Pongracic", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 75, "Quotazione": 16, "Status": "Titolare Difesa", "Convenienza": "Media"},
+        {"Nome": "Luca Ranieri", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 80, "Quotazione": 22, "Status": "Titolare Affidabile", "Convenienza": "Alta"},
+        {"Nome": "Abdelhamid Sabiri", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 35, "Quotazione": 12, "Status": "Incognita", "Convenienza": "Bassa"},
+        {"Nome": "Simon Sohm", "Squadra": "Fiorentina", "Ruolo": "Centrocampista", "Titolarita_%": 60, "Quotazione": 15, "Status": "Rotazione Fisica", "Convenienza": "Media"},
+        {"Nome": "Riccardo Sottil", "Squadra": "Fiorentina", "Ruolo": "Attaccante", "Titolarita_%": 60, "Quotazione": 18, "Status": "Spunto / Alternativa", "Convenienza": "Media"},
+        {"Nome": "Nicolás Valentini", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 65, "Quotazione": 16, "Status": "Rinforzo Solido", "Convenienza": "Media"},
+        {"Nome": "Viery", "Squadra": "Fiorentina", "Ruolo": "Difensore", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
 
-def calcola_spesa_max(row):
-    ruolo = row["Ruolo"]
-    quot = row["Costo"]
-    if ruolo == "Portiere":
-        budget_r = b_p
-    elif ruolo == "Difensore":
-        budget_r = b_d
-    elif ruolo == "Centrocampista":
-        budget_r = b_c
-    else:
-        budget_r = b_a
-    spesa = (quot / 100) * (budget_r * 0.8)
-    return int(max(1, spesa))
-
-df["Spesa_Max_Consigliata_(cr)"] = df.apply(calcola_spesa_max, axis=1)
-
-# --- TABS ---
-tab1, tab2 = st.tabs(["🔍 Cerca Giocatore & Scheda Asta", "📋 Listone Completo 587 Giocatori"])
-
-with tab1:
-    st.subheader(f"🔎 Cerca tra {len(df)} giocatori")
-    search_input = st.text_input("✍ Scrivi il nome (es. LEAO, DYbALA, SOMMER):", "")
-    if search_input:
-        filtered_names = df[df["Nome"].str.contains(search_input, case=False, na=False)]["Nome"].tolist()
-    else:
-        filtered_names = sorted(df["Nome"].tolist())
-
-    if filtered_names:
-        selected_player = st.selectbox("Seleziona il calciatore:", filtered_names)
-        player = df[df["Nome"] == selected_player].iloc[0]
-
-        st.markdown(f"## 👤 {player['Nome']} - {player['Squadra_Lunga']} ({player['Squadra']})")
-
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Ruolo", player["Ruolo"])
-        col2.metric("Titolarità", f"{player['Titolarita_%']}%")
-        col3.metric("SPESA MAX", f"{player['Spesa_Max_Consigliata_(cr)']} cr")
-        col4.metric("Convenienza", player["Convenienza"])
-
-        st.divider()
-        st.markdown(f"""
-        * **Status:** {player['Status']}
-        * **Quotazione Fantamilioni:** {player['Costo']}
-        * **Budget Ruolo Disponibile:** {int(b_p if player['Ruolo']=='Portiere' else b_d if player['Ruolo']=='Difensore' else b_c if player['Ruolo']=='Centrocampista' else b_a)} cr
-        * **Squadra:** {player['Squadra_Lunga']}
-        """)
-    else:
-        st.warning("Nessun giocatore trovato!")
-
-with tab2:
-    st.subheader(f"📋 Database Completo - {len(df)} Giocatori (TUTTI)")
-    
-    col_f1, col_f2, col_f3, col_f4 = st.columns(4)
-    with col_f1:
-        filtro_ruolo = st.multiselect("Ruolo:", options=sorted(df["Ruolo"].unique()), default=sorted(df["Ruolo"].unique()))
-    with col_f2:
-        filtro_squadra = st.multiselect("Squadra:", options=sorted(df["Squadra_Lunga"].unique()), default=sorted(df["Squadra_Lunga"].unique()))
-    with col_f3:
-        filtro_conv = st.multiselect("Convenienza:", options=sorted(df["Convenienza"].unique()), default=sorted(df["Convenienza"].unique()))
-    with col_f4:
-        min_costo = st.slider("Costo Minimo:", 0, 100, 0)
-
-    df_filtered = df[
-        (df["Ruolo"].isin(filtro_ruolo)) & 
-        (df["Squadra_Lunga"].isin(filtro_squadra)) &
-        (df["Convenienza"].isin(filtro_conv)) &
-        (df["Costo"] >= min_costo)
-    ]
-
-    st.dataframe(
-        df_filtered[["Nome", "Squadra_Lunga", "Squadra", "Ruolo", "Costo", "Titolarita_%", "Spesa_Max_Consigliata_(cr)", "Convenienza", "Status"]].sort_values(by="Costo", ascending=False),
-        use_container_width=True,
-        hide_index=True,
-        height=800
-    )
-    st.download_button("📥 Scarica CSV Completo", df_filtered.to_csv(index=False).encode('utf-8'), "fanta_completo_587.csv", "text/csv")
+        # --- FROSINONE ---
+        {"Nome": "Wisdom Amey", "Squadra": "Frosinone", "Ruolo": "Difensore", "Titolarita_%": 50, "Quotazione": 8, "Status": "Giovane Promessa", "Convenienza": "Bassa"},
+        {"Nome": "Anouar El Azzouzi", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 60, "Quotazione": 10, "Status": "Rotazione", "Convenienza": "Bassa"},
+        {"Nome": "Kevin Barcella", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 15, "Quotazione": 2, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Gabriele Bracaglia", "Squadra": "Frosinone", "Ruolo": "Difensore", "Titolarita_%": 40, "Quotazione": 6, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Giacomo Calò", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 85, "Quotazione": 22, "Status": "Regista e Piazzati", "Convenienza": "Alta"},
+        {"Nome": "Matteo Cichella", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 30, "Quotazione": 5, "Status": "Giovane", "Convenienza": "Bassa"},
+        {"Nome": "Alejandro Cichero", "Squadra": "Frosinone", "Ruolo": "Attaccante", "Titolarita_%": 25, "Quotazione": 6, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Giorgio Cittadini", "Squadra": "Frosinone", "Ruolo": "Difensore", "Titolarita_%": 70, "Quotazione": 14, "Status": "Titolare Difesa", "Convenienza": "Media"},
+        {"Nome": "Muhammed Colley", "Squadra": "Frosinone", "Ruolo": "Attaccante", "Titolarita_%": 20, "Quotazione": 5, "Status": "Giovane", "Convenienza": "Bassa"},
+        {"Nome": "Niccolò Corrado", "Squadra": "Frosinone", "Ruolo": "Difensore", "Titolarita_%": 75, "Quotazione": 16, "Status": "Spinta a Sinistra", "Convenienza": "Media"},
+        {"Nome": "Sebastiano Desplanches", "Squadra": "Frosinone", "Ruolo": "Portiere", "Titolarita_%": 80, "Quotazione": 20, "Status": "Portiere Titolare", "Convenienza": "Alta"},
+        {"Nome": "Jacopo Gelli", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 20, "Quotazione": 3, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Francesco Gelli", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 75, "Quotazione": 16, "Status": "Quantità e Inserimenti", "Convenienza": "Media"},
+        {"Nome": "Farès Ghedjemis", "Squadra": "Frosinone", "Ruolo": "Attaccante", "Titolarita_%": 65, "Quotazione": 18, "Status": "Dribbling e Velocità", "Convenienza": "Media"},
+        {"Nome": "Filippo Grosso", "Squadra": "Frosinone", "Ruolo": "Difensore", "Titolarita_%": 10, "Quotazione": 1, "Status": "Giovane", "Convenienza": "Molto Bassa"},
+        {"Nome": "Luis Hasa", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 70, "Quotazione": 20, "Status": "Talento / Assist", "Convenienza": "Alta"},
+        {"Nome": "Sergio Kalaj", "Squadra": "Frosinone", "Ruolo": "Difensore", "Titolarita_%": 35, "Quotazione": 6, "Status": "Riserva", "Convenienza": "Bassa"},
+        {"Nome": "Ben Kone", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 60, "Quotazione": 12, "Status": "Rotazione", "Convenienza": "Bassa"},
+        {"Nome": "Ilias Koutsoupias", "Squadra": "Frosinone", "Ruolo": "Centrocampista", "Titolarita_%": 70, "Quotazione": 15, "Status": "Titolare Centrocampo", "Convenienza": "Media"},
+        {"Nome": "Giorgi Kvernadze", "Squadra": "Frosinone", "Ruolo": "Attaccante", "Titolarita_%": 45, "Quotazione": 10, "Status": "Riserva Offensiva", "Convenienza": "Bassa"},
+        {"Nome": "Eldin Lolic", "Squadra": "Frosinone", "Ruolo": "Portiere", "Titolarita_%": 5, "Quotazione": 1, "Status": "Terzo Portiere", "Convenienza": "Molto Bassa"}
