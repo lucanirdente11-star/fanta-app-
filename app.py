@@ -655,9 +655,6 @@ def load_data():
         {"Nome": "Verdi", "Squadra": "Verona", "Ruolo": "Attaccante", "Titolarita_%": 40, "Quotazione": 19, "Status": "Jolly / Piazzati", "Convenienza": "Bassa"}
     ]
     return pd.DataFrame(giocatori)
-    ]
-    return pd.DataFrame(giocatori)
-
 df = load_data()
 
 # --- SIDEBAR CONFIGURAZIONE BUDGET (1500 CREDITI) ---
